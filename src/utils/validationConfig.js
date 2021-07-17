@@ -6,12 +6,3 @@ export const validationConfig = {
   inputErrorClass: "form__input_type_error",
   errorClass: "form__span-error_active",
 };
-
-export const validationLoginFormConfig = {
-  formSelector: ".form",
-  inputSelector: ".login__input",
-  submitButtonSelector: ".button_type_save-form",
-  inactiveButtonClass: "button_inactive",
-  inputErrorClass: "form__input_type_error",
-  errorClass: "form__span-error_active",
-};

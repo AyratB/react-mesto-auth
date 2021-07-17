@@ -1,9 +1,9 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import Button from "./Button.js";
 import * as auth from "./../utils/auth.js";
 
-function Login(props) {
+function Register(props) {
   const [userName, setUserName] = React.useState("");
   const [userPassword, setUserPassword] = React.useState("");
 
@@ -16,42 +16,28 @@ function Login(props) {
     }
   };
 
+  let isMistakeHappened = false;
+
   const handleSubmit = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
     auth
-      .authorize(userName, userPassword)
+      .register(userName, userPassword)
       .then((response) => {
-
-        debugger;
-        
-        if (!response.ok){
-
-          if (response.status === 401)
-            props.onTooltipOpen(true, "Пользователь с email не найден! Пройдите регистрацию", true);            
-          else if (response.status === 400){
-            props.onTooltipOpen(true, "Не передано одно из полей. Заполните оба поля", true);
-          }
-
-          return Promise.reject();
-        }
-
+        isMistakeHappened = !response.ok;        
         return response.json();
       })
       .then((data) => {
-
         debugger;
+        if (isMistakeHappened || data.error){
 
-        if (data.token) {
+            props.onTooltipOpen(true, data.error || data.message || "Что-то пошло не так! Попробуйте ещё раз.", true);
+            return Promise.reject();
 
-          localStorage.setItem("token", data.token);
-          
-          setUserName('');
-          setUserPassword('');
+        } else {
 
-          //обновляем состояние логирования
-          props.handleLogin();
-          props.history.push('/');
+            props.onTooltipOpen(true, "Вы успешно зарегистрировались!", false);
+            props.history.push('/sign-in');
         }
       })
       .catch((err) => console.log(err));
@@ -64,7 +50,7 @@ function Login(props) {
 
   return (
     <div className="login">
-      <p className="login__welcome">Вход</p>
+      <p className="login__welcome">Регистрация</p>
 
       <form onSubmit={handleSubmit} className="login__form" name="login">
         <input
@@ -88,12 +74,17 @@ function Login(props) {
         <Button
           type="submit"
           className="button button_type_save-form"
-          buttonText="Войти"
+          buttonText="Зарегистрироваться"
           style={cssRules}
         ></Button>
       </form>
+
+      <div className="login__signin">
+          <span>Уже зарегистрированы?</span>
+          <Link to="/sign-in" className="login__link">Войти</Link>
+        </div>
     </div>
   );
 }
 
-export default withRouter(Login);
+export default withRouter(Register);

@@ -14,8 +14,8 @@ import { CurrentUserContext } from "./../contexts/CurrentUserContext.js";
 
 import { Route, Switch, Redirect } from "react-router-dom";
 import Login from "./Login.js";
-
 import ProtectedRoute from "./ProtectedRoute.js";
+import Register from "./Register.js";
 
 function App() {
   //попапы
@@ -31,6 +31,8 @@ function App() {
 
   const [popupMessage, setPopupMessage] = React.useState("");
   const [isTooltipMistake, setIsTooltipMistake] = React.useState(false);
+
+  const [userEmail, setUserEmail] = React.useState("");
 
   //открытие попапов
   const handleEditProfileClick = () => setEditProfilePopupOpen(true);
@@ -178,9 +180,8 @@ function App() {
       .catch((err) => console.log(err));
   }
 
-  //работа с логином
-
   function handleLogin() {
+    debugger;
     setIsLoggedIn(true);
   }
 
@@ -188,18 +189,21 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__container">
-          <Header />
+          <Header userEmail={userEmail}/>
           <Switch>
-            <Route path="/sign-in">
-              <Login 
 
+            <Route path="/sign-in">
+              <Login
                 onTooltipOpen={handleTooltipPopup} 
-                handleLogin={handleLogin}
-                
+                handleLogin={handleLogin}                
+              />
+            </Route>  
+
+            <Route path="/sign-up">
+              <Register
+                onTooltipOpen={handleTooltipPopup}               
               />
             </Route>
-
-            <Route path="/sign-up"></Route>
 
             <ProtectedRoute
               path="/"
