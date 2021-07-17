@@ -5,6 +5,7 @@ import Button from "./Button.js";
 import { CurrentUserContext } from "./../contexts/CurrentUserContext.js";
 
 function Main(props) {
+  
   const currentUserContext = React.useContext(CurrentUserContext);
 
   const [isButtonChangeAvatarVisible, setCssButtonEditAvatarStyles] =

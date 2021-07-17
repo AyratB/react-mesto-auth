@@ -4,7 +4,7 @@ import React from "react";
 function PopupWithForm(props) {
   return (
     <article
-      className={`popup popup_type_${props.name} ${
+      className={`popup ${
         props.isOpen ? "popup_opened" : ""
       }`}
     >

@@ -1,42 +1,56 @@
 import React from "react";
-
 import Header from "./Header.js";
-import Footer from "./Footer.js";
+
 import Main from "./Main.js";
-
 import api from "./../utils/api";
-
 import ImagePopup from "./ImagePopup.js";
-
 import EditProfilePopup from "./EditProfilePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
 import SubmitDeletePopup from "./SubmitDeletePopup.js";
+import InfoTooltip from "./InfoTooltip.js";
 
 import { CurrentUserContext } from "./../contexts/CurrentUserContext.js";
 
 import { Route, Switch, Redirect } from "react-router-dom";
+import Login from "./Login.js";
+
+import ProtectedRoute from "./ProtectedRoute.js";
 
 function App() {
+  //попапы
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] =
     React.useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = React.useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = React.useState(false);
-  const [selectedCard, setSelectedCard] = React.useState(null);
   const [isSubmitDeletePopupOpen, setSubmitDeletePopupOpen] =
     React.useState(false);
+  const [isTooltipPopupOpen, setIsTooltipPopupOpen] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState(null);
+  //попапы
 
+  const [popupMessage, setPopupMessage] = React.useState("");
+  const [isTooltipMistake, setIsTooltipMistake] = React.useState(false);
+
+  //открытие попапов
   const handleEditProfileClick = () => setEditProfilePopupOpen(true);
   const handleAddPlaceClick = () => setAddPlacePopupOpen(true);
   const handleEditAvatarClick = () => setEditAvatarPopupOpen(true);
-
   const handleCardClick = (cardData) => setSelectedCard(cardData);
+
+  const handleTooltipPopup = (setOpen, message, isMistake) => {
+    
+    setPopupMessage(message);
+    setIsTooltipPopupOpen(setOpen);
+    setIsTooltipMistake(isMistake);    
+  }
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = React.useState(false);
   const [updateAvatarIsLoading, setUpdateAvatarIsLoading] =
     React.useState(false);
   const [addCardIsLoading, setAddCardIsLoading] = React.useState(false);
 
+  //закрытие попапов
   const closeAllPopups = () => {
     if (isEditProfilePopupOpen) setEditProfilePopupOpen(false);
     if (isAddPlacePopupOpen) setAddPlacePopupOpen(false);
@@ -45,6 +59,11 @@ function App() {
       setSelectedCard(null);
     }
     if (isSubmitDeletePopupOpen) setSubmitDeletePopupOpen(false);
+
+    if (isTooltipPopupOpen) {
+      setIsTooltipPopupOpen(false);
+      setIsTooltipMistake(false);
+    }
   };
 
   const [cardToDelete, setCardToDelete] = React.useState({});
@@ -159,39 +178,41 @@ function App() {
       .catch((err) => console.log(err));
   }
 
+  //работа с логином
+
+  function handleLogin() {
+    setIsLoggedIn(true);
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__container">
           <Header />
           <Switch>
-
-            <Route path="/">
-              {isLoggedIn ? (
-                <>
-                  <Main
-                    onEditProfile={handleEditProfileClick}
-                    onAddPlace={handleAddPlaceClick}
-                    onEditAvatar={handleEditAvatarClick}
-                    onCardClick={handleCardClick}
-                    cards={cards}
-                    onCardLike={handleCardLike}
-                    onCardDelete={handleCardDelete}
-                  />
-                  <Footer />
-                </>
-              ) : (
-                <Redirect to="/sign-in" />
-              )}
-            </Route>
-
-            <Route path="/sign-up">
-              
-            </Route>
-
             <Route path="/sign-in">
-            
+              <Login 
+
+                onTooltipOpen={handleTooltipPopup} 
+                handleLogin={handleLogin}
+                
+              />
             </Route>
+
+            <Route path="/sign-up"></Route>
+
+            <ProtectedRoute
+              path="/"
+              isLoggedIn={isLoggedIn} 
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              cards={cards}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+              component={Main}
+            />
           </Switch>
         </div>
 
@@ -215,6 +236,13 @@ function App() {
           isOpen={isSubmitDeletePopupOpen}
           onClose={closeAllPopups}
           onSubmitDeleteCard={handleSubmitCardDelete}
+        />
+
+        <InfoTooltip 
+          isOpen={isTooltipPopupOpen} 
+          message={popupMessage} 
+          onClose={closeAllPopups} 
+          isTooltipMistake={isTooltipMistake}
         />
 
         <EditAvatarPopup

@@ -45,7 +45,7 @@ function EditProfilePopup(props) {
 
     setValidator(Object.assign(formValidator, editProfileFormValidator));    
 
-    editProfileFormValidator.enableValidation();    
+    editProfileFormValidator.enableValidation();     
   }, []);
 
   React.useEffect(() => {
