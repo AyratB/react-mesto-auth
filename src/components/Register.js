@@ -24,20 +24,22 @@ function Register(props) {
     auth
       .register(userName, userPassword)
       .then((response) => {
-        isMistakeHappened = !response.ok;        
+        isMistakeHappened = !response.ok;
         return response.json();
       })
       .then((data) => {
-          
-        if (isMistakeHappened || data.error){
-
-            props.onTooltipOpen(true, data.error || data.message || "Что-то пошло не так! Попробуйте ещё раз.", true);
-            return Promise.reject();
-
+        if (isMistakeHappened || data.error) {
+          props.onTooltipOpen(
+            true,
+            data.error ||
+              data.message ||
+              "Что-то пошло не так! Попробуйте ещё раз.",
+            true
+          );
+          return Promise.reject();
         } else {
-
-            props.onTooltipOpen(true, "Вы успешно зарегистрировались!", false);
-            props.history.push('/sign-in');
+          props.onTooltipOpen(true, "Вы успешно зарегистрировались!", false);
+          props.history.push("/sign-in");
         }
       })
       .catch((err) => console.log(err));
@@ -80,9 +82,11 @@ function Register(props) {
       </form>
 
       <div className="login__signin">
-          <span>Уже зарегистрированы?</span>
-          <Link to="/sign-in" className="login__link">Войти</Link>
-        </div>
+        <span>Уже зарегистрированы?</span>
+        <Link to="/sign-in" className="login__link">
+          Войти
+        </Link>
+      </div>
     </div>
   );
 }

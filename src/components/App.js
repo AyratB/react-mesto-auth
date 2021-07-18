@@ -42,11 +42,10 @@ function App() {
   const handleCardClick = (cardData) => setSelectedCard(cardData);
 
   const handleTooltipPopup = (setOpen, message, isMistake) => {
-    
     setPopupMessage(message);
     setIsTooltipPopupOpen(setOpen);
-    setIsTooltipMistake(isMistake);    
-  }
+    setIsTooltipMistake(isMistake);
+  };
   //открытие попапов
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = React.useState(false);
@@ -83,15 +82,14 @@ function App() {
 
   const history = useHistory();
 
-  function signOut(){
-    
-    localStorage.removeItem('token');
+  function signOut() {
+    localStorage.removeItem("token");
 
     setIsLoggedIn(false);
 
     setUserEmail("");
 
-    history.push('/sign-in');
+    history.push("/sign-in");
   }
 
   React.useEffect(() => {
@@ -110,44 +108,38 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     let isJwtMistake = false;
 
     if (token) {
       auth
         .getContent(token)
-        .then(res => {     
-          
-          isJwtMistake = !res.ok;          
+        .then((res) => {
+          isJwtMistake = !res.ok;
           return res.json();
         })
         .then((res) => {
-          if (res){
-            
-            if (isJwtMistake){
-
+          if (res) {
+            if (isJwtMistake) {
               handleTooltipPopup(true, res.error || res.message, true);
 
-              localStorage.removeItem('token');
+              localStorage.removeItem("token");
               setIsLoggedIn(false);
 
-              history.push('/sign-in');
+              history.push("/sign-in");
 
               return Promise.reject();
             } else {
-
               setUserEmail(res.data.email);
 
               setIsLoggedIn(true);
-              history.push('/');
-            }            
-          }          
-      })
-      .catch((err) => console.log(err));
+              history.push("/");
+            }
+          }
+        })
+        .catch((err) => console.log(err));
     }
-
   }, []);
 
   function handleUpdateUser({ name, about }) {
@@ -237,10 +229,9 @@ function App() {
   }
 
   function handleLogin(token, userEmail) {
-    
     setIsLoggedIn(true);
     localStorage.setItem("token", token);
-    
+
     setUserEmail(userEmail);
   }
 
@@ -248,28 +239,22 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__container">
-          <Header 
-            userEmail={userEmail}
-            signOut = {signOut}
-          />
+          <Header userEmail={userEmail} signOut={signOut} />
           <Switch>
-
-          <Route path="/sign-in">
+            <Route path="/sign-in">
               <Login
-                onTooltipOpen={handleTooltipPopup} 
-                handleLogin={handleLogin}                
+                onTooltipOpen={handleTooltipPopup}
+                handleLogin={handleLogin}
               />
-            </Route>  
+            </Route>
 
             <Route path="/sign-up">
-              <Register
-                onTooltipOpen={handleTooltipPopup}               
-              />
+              <Register onTooltipOpen={handleTooltipPopup} />
             </Route>
 
             <ProtectedRoute
               path="/"
-              isLoggedIn={isLoggedIn} 
+              isLoggedIn={isLoggedIn}
               onEditProfile={handleEditProfileClick}
               onAddPlace={handleAddPlaceClick}
               onEditAvatar={handleEditAvatarClick}
@@ -279,7 +264,6 @@ function App() {
               onCardDelete={handleCardDelete}
               component={Main}
             />
-
           </Switch>
         </div>
 
@@ -305,10 +289,10 @@ function App() {
           onSubmitDeleteCard={handleSubmitCardDelete}
         />
 
-        <InfoTooltip 
-          isOpen={isTooltipPopupOpen} 
-          message={popupMessage} 
-          onClose={closeAllPopups} 
+        <InfoTooltip
+          isOpen={isTooltipPopupOpen}
+          message={popupMessage}
+          onClose={closeAllPopups}
           isTooltipMistake={isTooltipMistake}
         />
 
