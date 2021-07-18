@@ -12,10 +12,11 @@ import InfoTooltip from "./InfoTooltip.js";
 
 import { CurrentUserContext } from "./../contexts/CurrentUserContext.js";
 
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import Login from "./Login.js";
 import ProtectedRoute from "./ProtectedRoute.js";
 import Register from "./Register.js";
+import * as auth from "./../utils/auth.js";
 
 function App() {
   //попапы
@@ -46,6 +47,7 @@ function App() {
     setIsTooltipPopupOpen(setOpen);
     setIsTooltipMistake(isMistake);    
   }
+  //открытие попапов
 
   const [updateUserIsLoading, setUpdateUserIsLoading] = React.useState(false);
   const [updateAvatarIsLoading, setUpdateAvatarIsLoading] =
@@ -79,6 +81,19 @@ function App() {
 
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
+  const history = useHistory();
+
+  function signOut(){
+    
+    localStorage.removeItem('token');
+
+    setIsLoggedIn(false);
+
+    setUserEmail("");
+
+    history.push('/sign-in');
+  }
+
   React.useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
       .then(([user, cardsData]) => {
@@ -92,6 +107,47 @@ function App() {
         setCards(cardsData);
       })
       .catch((err) => console.log(err));
+  }, []);
+
+  React.useEffect(() => {
+    
+    const token = localStorage.getItem('token');
+
+    let isJwtMistake = false;
+
+    if (token) {
+      auth
+        .getContent(token)
+        .then(res => {     
+          
+          isJwtMistake = !res.ok;          
+          return res.json();
+        })
+        .then((res) => {
+          if (res){
+            
+            if (isJwtMistake){
+
+              handleTooltipPopup(true, res.error || res.message, true);
+
+              localStorage.removeItem('token');
+              setIsLoggedIn(false);
+
+              history.push('/sign-in');
+
+              return Promise.reject();
+            } else {
+
+              setUserEmail(res.data.email);
+
+              setIsLoggedIn(true);
+              history.push('/');
+            }            
+          }          
+      })
+      .catch((err) => console.log(err));
+    }
+
   }, []);
 
   function handleUpdateUser({ name, about }) {
@@ -180,19 +236,25 @@ function App() {
       .catch((err) => console.log(err));
   }
 
-  function handleLogin() {
-    debugger;
+  function handleLogin(token, userEmail) {
+    
     setIsLoggedIn(true);
+    localStorage.setItem("token", token);
+    
+    setUserEmail(userEmail);
   }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__container">
-          <Header userEmail={userEmail}/>
+          <Header 
+            userEmail={userEmail}
+            signOut = {signOut}
+          />
           <Switch>
 
-            <Route path="/sign-in">
+          <Route path="/sign-in">
               <Login
                 onTooltipOpen={handleTooltipPopup} 
                 handleLogin={handleLogin}                
@@ -217,6 +279,7 @@ function App() {
               onCardDelete={handleCardDelete}
               component={Main}
             />
+
           </Switch>
         </div>
 

@@ -25,7 +25,7 @@ function Header(props) {
           </Route>
 
           <Route path="/">
-            <Link to="#" className="header__link">
+            <Link to="#" className="header__link" onClick={props.signOut}>
               Выйти
             </Link>
           </Route>

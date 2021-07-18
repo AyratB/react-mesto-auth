@@ -28,7 +28,7 @@ function Register(props) {
         return response.json();
       })
       .then((data) => {
-        debugger;
+          
         if (isMistakeHappened || data.error){
 
             props.onTooltipOpen(true, data.error || data.message || "Что-то пошло не так! Попробуйте ещё раз.", true);

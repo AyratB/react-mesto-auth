@@ -4,7 +4,7 @@ import Button from "./Button.js";
 import * as auth from "./../utils/auth.js";
 
 function Login(props) {
-  const [userName, setUserName] = React.useState("");
+  const [userEmail, setUserName] = React.useState("");
   const [userPassword, setUserPassword] = React.useState("");
 
   const handleChange = (e) => {
@@ -20,10 +20,8 @@ function Login(props) {
     e.preventDefault(); 
 
     auth
-      .authorize(userName, userPassword)
+      .authorize(userEmail, userPassword)
       .then((response) => {
-
-        debugger;
         
         if (!response.ok){
 
@@ -40,17 +38,12 @@ function Login(props) {
       })
       .then((data) => {
 
-        debugger;
-
         if (data.token) {
-
-          localStorage.setItem("token", data.token);
           
           setUserName('');
           setUserPassword('');
 
-          //обновляем состояние логирования
-          props.handleLogin();
+          props.handleLogin(data.token, userEmail);
           props.history.push('/');
         }
       })
@@ -71,7 +64,7 @@ function Login(props) {
           className="login__input"
           id="username"
           name="username"
-          value={userName}
+          value={userEmail}
           onChange={handleChange}
           placeholder="Email"
         />
