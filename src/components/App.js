@@ -110,35 +110,23 @@ function App() {
   React.useEffect(() => {
     const token = localStorage.getItem("token");
 
-    let isJwtMistake = false;
-
     if (token) {
       auth
         .getContent(token)
         .then((res) => {
-          isJwtMistake = !res.ok;
-          return res.json();
+          setUserEmail(res.data.email);
+
+          setIsLoggedIn(true);
+          history.push("/");
         })
-        .then((res) => {
-          if (res) {
-            if (isJwtMistake) {
-              handleTooltipPopup(true, res.error || res.message, true);
+        .catch((errorStatus) => {
+          handleTooltipPopup(true, "Недействительный токен JWT", true);
 
-              localStorage.removeItem("token");
-              setIsLoggedIn(false);
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
 
-              history.push("/sign-in");
-
-              return Promise.reject();
-            } else {
-              setUserEmail(res.data.email);
-
-              setIsLoggedIn(true);
-              history.push("/");
-            }
-          }
-        })
-        .catch((err) => console.log(err));
+          history.push("/sign-in");
+        });
     }
   }, []);
 
@@ -235,6 +223,44 @@ function App() {
     setUserEmail(userEmail);
   }
 
+  function autorize(userEmail, userPassword) {
+    auth
+      .authorize(userEmail, userPassword)
+      .then((data) => {
+        if (data.token) {
+          handleLogin(data.token, userEmail);
+          history.push("/");
+        }
+      })
+      .catch((errorStatus) => {
+        handleTooltipPopup(
+          true,
+          errorStatus === 401
+            ? "Пользователь с email не найден! Пройдите регистрацию"
+            : errorStatus === 400
+            ? "Не передано одно из полей. Заполните оба поля"
+            : "Что-то пошло не так",
+          true
+        );
+      });
+  }
+
+  function register(userEmail, userPassword) {
+    auth
+      .register(userEmail, userPassword)
+      .then((res) => {
+        handleTooltipPopup(true, "Вы успешно зарегистрировались!", false);
+        history.push("/sign-in");
+      })
+      .catch((err) => {
+        handleTooltipPopup(
+          true,
+          "Что-то пошло не так! Попробуйте ещё раз.",
+          true
+        );
+      });
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
@@ -242,14 +268,11 @@ function App() {
           <Header userEmail={userEmail} signOut={signOut} />
           <Switch>
             <Route path="/sign-in">
-              <Login
-                onTooltipOpen={handleTooltipPopup}
-                handleLogin={handleLogin}
-              />
+              <Login autorize={autorize} />
             </Route>
 
             <Route path="/sign-up">
-              <Register onTooltipOpen={handleTooltipPopup} />
+              <Register register={register} />
             </Route>
 
             <ProtectedRoute

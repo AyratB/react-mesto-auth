@@ -1,7 +1,6 @@
 import React from "react";
 import { withRouter, Link } from "react-router-dom";
 import Button from "./Button.js";
-import * as auth from "./../utils/auth.js";
 
 function Register(props) {
   const [userName, setUserName] = React.useState("");
@@ -14,35 +13,12 @@ function Register(props) {
     } else if (input.name === "password") {
       setUserPassword(input.value);
     }
-  };
-
-  let isMistakeHappened = false;
+  };  
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    auth
-      .register(userName, userPassword)
-      .then((response) => {
-        isMistakeHappened = !response.ok;
-        return response.json();
-      })
-      .then((data) => {
-        if (isMistakeHappened || data.error) {
-          props.onTooltipOpen(
-            true,
-            data.error ||
-              data.message ||
-              "Что-то пошло не так! Попробуйте ещё раз.",
-            true
-          );
-          return Promise.reject();
-        } else {
-          props.onTooltipOpen(true, "Вы успешно зарегистрировались!", false);
-          props.history.push("/sign-in");
-        }
-      })
-      .catch((err) => console.log(err));
+    props.register(userName, userPassword);    
   };
 
   const cssRules = {

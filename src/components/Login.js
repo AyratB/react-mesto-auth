@@ -1,7 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import Button from "./Button.js";
-import * as auth from "./../utils/auth.js";
 
 function Login(props) {
   const [userEmail, setUserName] = React.useState("");
@@ -19,39 +18,7 @@ function Login(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    auth
-      .authorize(userEmail, userPassword)
-      .then((response) => {
-        if (!response.ok) {
-          if (response.status === 401)
-            props.onTooltipOpen(
-              true,
-              "Пользователь с email не найден! Пройдите регистрацию",
-              true
-            );
-          else if (response.status === 400) {
-            props.onTooltipOpen(
-              true,
-              "Не передано одно из полей. Заполните оба поля",
-              true
-            );
-          }
-
-          return Promise.reject();
-        }
-
-        return response.json();
-      })
-      .then((data) => {
-        if (data.token) {
-          setUserName("");
-          setUserPassword("");
-
-          props.handleLogin(data.token, userEmail);
-          props.history.push("/");
-        }
-      })
-      .catch((err) => console.log(err));
+    props.autorize(userEmail, userPassword);    
   };
 
   const cssRules = {

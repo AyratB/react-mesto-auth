@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import Footer from "./Footer.js";
 
 const ProtectedRoute = ({ component: Component, ...props }) => {
   return (
@@ -8,8 +7,7 @@ const ProtectedRoute = ({ component: Component, ...props }) => {
       {() =>
         props.isLoggedIn ? (
           <>
-            <Component {...props} />
-            <Footer />
+            <Component {...props} />            
           </>
         ) : (
           <Redirect to="./sign-in" />

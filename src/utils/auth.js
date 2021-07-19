@@ -1,11 +1,26 @@
 export const BASE_URL = "https://auth.nomoreparties.co";
 
+function request({ endPoint, method, body, requestHeaders }) {
+  const fetchInit = {
+    method: method,
+    headers: Object.assign(
+      {
+        "Content-Type": "application/json",
+      },
+      requestHeaders
+    ),
+  };
+
+  return fetch(
+    `${BASE_URL}/${endPoint}`,
+    body ? { ...fetchInit, body } : fetchInit
+  ).then((res) => getResponseData(res));
+}
+
 export const authorize = (identifier, password) => {
-  return fetch(`${BASE_URL}/signin`, {
+  return request({
+    endPoint: "signin",
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       email: identifier,
       password: password,
@@ -14,26 +29,30 @@ export const authorize = (identifier, password) => {
 };
 
 export const register = (identifier, password) => {
-  return fetch(`${BASE_URL}/signup`, {
+  return request({
+    endPoint: "signup",
     method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       email: identifier,
       password: password,
     }),
+    requestHeaders: {
+      Accept: "application/json",
+    },
   });
 };
 
 export const getContent = (token) => {
-  return fetch(`${BASE_URL}/users/me`, {
+  return request({
+    endPoint: "users/me",
     method: "GET",
-    headers: {
+    requestHeaders: {
       Accept: "application/json",
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   });
 };
+
+function getResponseData(res) {  
+  return res.ok ? res.json() : Promise.reject(res.status);
+}

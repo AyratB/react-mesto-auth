@@ -12,7 +12,7 @@ function EditAvatarPopup(props) {
 
   React.useEffect(() => {    
 
-    let editAvatarFormValidator = new FormValidator(
+    const editAvatarFormValidator = new FormValidator(
       validationConfig,
       document.forms[props.formName]
     );
